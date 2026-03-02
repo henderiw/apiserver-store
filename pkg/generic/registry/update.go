@@ -111,6 +111,8 @@ func (r *Store) Update(ctx context.Context, name string, objInfo rest.UpdatedObj
 		return nil, creating, err
 	}
 
+	unlock := r.lockKey(key)
+    defer unlock()
 	obj, err = r.UpdateStrategy.Update(ctx, key, obj, existing, isDryRun(options.DryRun))
 	if err != nil {
 		// TODO see if we need to return more errors

@@ -3,6 +3,7 @@ package registry
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	reststore "github.com/henderiw/apiserver-store/pkg/rest"
 	"github.com/henderiw/apiserver-store/pkg/storebackend"
@@ -115,6 +116,15 @@ type Store struct {
 	CategoryList []string
 
 	Storage storebackend.Storer[runtime.Object]
+
+	KeyLocks *sync.Map
+}
+
+func (r *Store) lockKey(key types.NamespacedName) func() {
+    v, _ := r.KeyLocks.LoadOrStore(key, &sync.Mutex{})
+    mu := v.(*sync.Mutex)
+    mu.Lock()
+    return mu.Unlock
 }
 
 // CompleteWithOptions updates the store with the provided options and
