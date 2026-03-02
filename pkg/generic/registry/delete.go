@@ -37,6 +37,10 @@ func (r *Store) Delete(ctx context.Context, name string, deleteValidation rest.V
 	if err != nil {
 		return nil, false, err
 	}
+	
+	unlock := r.lockKey(key)
+	defer unlock()
+
 	qualifiedResource := r.qualifiedResourceFromContext(ctx)
 
 	log.Debug("delete", "key", key)
