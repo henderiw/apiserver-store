@@ -37,6 +37,10 @@ func (r *Store) Delete(ctx context.Context, name string, deleteValidation rest.V
 	if err != nil {
 		return nil, false, err
 	}
+	
+	unlock := r.lockKey(key)
+	defer unlock()
+
 	qualifiedResource := r.qualifiedResourceFromContext(ctx)
 
 	log.Debug("delete", "key", key)
@@ -103,8 +107,6 @@ func (r *Store) Delete(ctx context.Context, name string, deleteValidation rest.V
 		return out, false, err
 	}
 
-	unlock := r.lockKey(key)
-	defer unlock()
 	obj, derr := r.DeleteStrategy.Delete(ctx, key, obj, isDryRun(options.DryRun))
 	if derr != nil {
 		obj, err = r.finalizeDelete(ctx, obj, true, options)
