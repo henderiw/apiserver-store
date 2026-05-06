@@ -21,6 +21,9 @@ func (r *Store) Create(ctx context.Context, obj runtime.Object, createValidation
 	log := log.FromContext(ctx)
 	log.Debug("create")
 
+	if r.CreateStrategy == nil {
+		return nil, apierrors.NewMethodNotSupported(r.DefaultQualifiedResource, "creaate")
+	}
 	if err := r.CreateStrategy.BeginCreate(ctx); err != nil {
 		return nil, err
 	}
